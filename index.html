@@ -161,61 +161,50 @@
         }
 
         // Função para sortear os times
-function sortearTimes() {
-    const gruposABCD = { 'a': [], 'b': [], 'c': [], 'd': [] };
-    const gruposEFGH = { 'e': [], 'f': [], 'g': [], 'h': [] };
-    const potes = [pote1, pote2, pote3, pote4];
+        function sortearTimes() {
+            const gruposABCD = { 'a': [], 'b': [], 'c': [], 'd': [] };
+            const gruposEFGH = { 'e': [], 'f': [], 'g': [], 'h': [] };
+            const potes = [pote1, pote2, pote3, pote4];
 
-    // Define a quantidade de times de cada pote em cada grupo
-    const timesPorPotePorGrupo = 1;
+            // Define a quantidade de times de cada pote em cada grupo
+            const timesPorPotePorGrupo = 1;
 
-    for (const pote of potes) {
-        const poteShuffled = shuffleArray(pote);
-        let grupoIndex = 0;
+            for (const pote of potes) {
+                const poteShuffled = shuffleArray(pote);
+                let grupoIndex = 0;
 
-        for (let i = 0; i < poteShuffled.length; i++) {
-            const time = poteShuffled[i];
-            const grupo = Object.keys(gruposABCD)[grupoIndex];
-            
-            // Verifica se o time do pote atual é do mesmo país que algum time do grupo atual
-            const countryConflict = gruposABCD[grupo].some(team => {
-                const countryPote = time.split('(')[1].split(')')[0];
-                const countryGroup = team.split('(')[1].split(')')[0];
-                return countryPote === countryGroup && countryPote !== 'POT 4';
-            });
-
-            if (!countryConflict) {
-                gruposABCD[grupo].push(time);
-            } else {
-                // Se houver conflito de país, coloca o time no próximo grupo
-                grupoIndex = (grupoIndex + 1) % (Object.keys(gruposABCD).length + Object.keys(gruposEFGH).length);
-                const outroGrupo = Object.keys(gruposABCD)[grupoIndex];
-                gruposABCD[outroGrupo].push(time);
+                for (let i = 0; i < poteShuffled.length; i++) {
+                    const time = poteShuffled[i];
+                    const grupo = Object.keys(gruposABCD)[grupoIndex];
+                    if (grupo !== undefined) {
+                        gruposABCD[grupo].push(time);
+                    } else {
+                        const outroGrupo = Object.keys(gruposEFGH)[grupoIndex - Object.keys(gruposABCD).length];
+                        gruposEFGH[outroGrupo].push(time);
+                    }
+                    grupoIndex = (grupoIndex + 1) % (Object.keys(gruposABCD).length + Object.keys(gruposEFGH).length);
+                }
             }
 
-            grupoIndex = (grupoIndex + 1) % (Object.keys(gruposABCD).length + Object.keys(gruposEFGH).length);
+            // Exibir resultados na tela
+            let resultadoHTML = '';
+            for (const grupo in gruposABCD) {
+                resultadoHTML += `<table class="grupo"><thead><tr><th colspan="2">Grupo ${grupo.toUpperCase()}</th></tr></thead><tbody>`;
+                for (const time of gruposABCD[grupo]) {
+                    resultadoHTML += `<tr><td>${time}</td></tr>`;
+                }
+                resultadoHTML += `</tbody></table>`;
+            }
+            for (const grupo in gruposEFGH) {
+                resultadoHTML += `<table class="grupo"><thead><tr><th colspan="2">Grupo ${grupo.toUpperCase()}</th></tr></thead><tbody>`;
+                for (const time of gruposEFGH[grupo]) {
+                    resultadoHTML += `<tr><td>${time}</td></tr>`;
+                }
+                resultadoHTML += `</tbody></table>`;
+            }
+            document.getElementById('resultado').innerHTML = resultadoHTML;
         }
-    }
-
-    // Exibir resultados na tela
-    let resultadoHTML = '';
-    for (const grupo in gruposABCD) {
-        resultadoHTML += `<table class="grupo"><thead><tr><th colspan="2">Grupo ${grupo.toUpperCase()}</th></tr></thead><tbody>`;
-        for (const time of gruposABCD[grupo]) {
-            resultadoHTML += `<tr><td>${time}</td></tr>`;
-        }
-        resultadoHTML += `</tbody></table>`;
-    }
-    for (const grupo in gruposEFGH) {
-        resultadoHTML += `<table class="grupo"><thead><tr><th colspan="2">Grupo ${grupo.toUpperCase()}</th></tr></thead><tbody>`;
-        for (const time of gruposEFGH[grupo]) {
-            resultadoHTML += `<tr><td>${time}</td></tr>`;
-        }
-        resultadoHTML += `</tbody></table>`;
-    }
-    document.getElementById('resultado').innerHTML = resultadoHTML;
-}
-
+        
         // Event listener para o botão de sorteio
         document.getElementById('sortearButton').addEventListener('click', sortearTimes);
     </script>
